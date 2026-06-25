@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Manual DIF</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+      color: #333;
+    }
+    h1 {
+      color: #1a3a6b;
+      border-bottom: 2px solid #1a3a6b;
+      padding-bottom: 10px;
+      font-size: 22px;
+    }
+    h2 { color: #1a3a6b; margin-top: 0; }
+    p { margin: 6px 0; }
+    .contadores {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .contador {
+      background: #f5f5f5;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .contador-label { font-size: 13px; color: #888; margin-bottom: 4px; }
+    .contador-valor { font-size: 28px; font-weight: 500; color: #1a3a6b; }
+    .filtros { display: flex; gap: 8px; margin: 20px 0; flex-wrap: wrap; }
+    .filtros button {
+      font-size: 13px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      border: 1px solid #ccc;
+      background: white;
+      cursor: pointer;
+      color: #555;
+    }
+    .filtros button.activo {
+      background: #EEEDFE;
+      border-color: #534AB7;
+      color: #3C3489;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+    .tarjeta {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 16px 20px;
+      cursor: pointer;
+    }
+    .tarjeta:hover { border-color: #1a3a6b; }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+    .badge-presidencia { background: #EEEDFE; color: #3C3489; }
+    .badge-coord { background: #E1F5EE; color: #085041; }
+    .detalle {
+      display: none;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 24px;
+      margin-top: 20px;
+    }
+    .detalle.visible { display: block; }
+    .volver {
+      font-size: 13px;
+      color: #888;
+      cursor: pointer;
+      margin-bottom: 16px;
+    }
+    .volver:hover { color: #1a3a6b; }
+    .campos {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .campo { border-top: 1px solid #eee; padding-top: 10px; }
+    .campo.completo { grid-column: 1 / -1; }
+    .campo-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #aaa;
+      margin-bottom: 4px;
+    }
+    .campo-valor { font-size: 13px; line-height: 1.5; }
+    @media (max-width: 600px) {
+      .contadores { grid-template-columns: 1fr; }
+      .campos { grid-template-columns: 1fr; }
+      .campo.completo { grid-column: 1; }
+      body { margin: 20px auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Manual de Programas Sociales — DIF Municipal</h1>
+
+  <div class="contadores">
+    <div class="contador">
+      <div class="contador-label">Programas documentados</div>
+      <div class="contador-valor">3</div>
+    </div>
+    <div class="contador">
+      <div class="contador-label">Áreas representadas</div>
+      <div class="contador-valor">2</div>
+    </div>
+    <div class="contador">
+      <div class="contador-label">Programas gratuitos</div>
+      <div class="contador-valor">3</div>
+    </div>
+  </div>
+
+  <div class="filtros" id="filtros">
+    <button class="activo" onclick="filtrar('todos', this)">Todos</button>
+    <button onclick="filtrar('presidencia', this)">Presidencia</button>
+    <button onclick="filtrar('coord', this)">Coord. Estratégica</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="detalle" id="detalle">
+    <div class="volver" onclick="volver()">← Volver al listado</div>
+    <div id="detalle-contenido"></div>
+  </div>
+
+  <script>
+    const programas = [
+      {
+        area: "presidencia",
+        badge: "badge-presidencia",
+        badgeTexto: "Presidencia",
+        titulo: "Abrigos que Abrazan",
+        poblacion: "Niñas, niños y adolescentes en situación de vulnerabilidad.",
+        vigencia: "Noviembre–enero",
+        costo: "Gratuito",
+        objetivo: "Promover la responsabilidad social invitando a la ciudadanía a donar chamarras nuevas para abrigar a niñas, niños y adolescentes en situación de vulnerabilidad durante la temporada invernal.",
+        obtienes: "Una chamarra con forro polar y gorro, de acuerdo a la talla del beneficiario.",
+        requisitos: "Solicitud por escrito dirigida a la Dirección General del DIF Municipal, con talla propuesta. Para solicitudes grupales, listado con nombre completo y CURP de cada beneficiario. Para solicitudes individuales, presentar CURP del beneficiario.",
+        papeleria: "CURP, INE. Para grupos, listado de beneficiarios.",
+        como: "Presentar la solicitud en las oficinas del DIF Municipal. Las solicitudes pueden ser individuales, familiares o grupales. Una vez validada, se realiza la entrega de un donativo por beneficiario.",
+        donde: "Av. A.F. Carbonel No. 4106, Col. San Felipe V, Chihuahua, Chih.",
+        contacto: "614 200 4800 ext. 2244–2248 · karina.muruato@mpiochih.gob.mx"
+      },
+      {
+        area: "presidencia",
+        badge: "badge-presidencia",
+        badgeTexto: "Presidencia",
+        titulo: "Reto Útil",
+        poblacion: "Niñas, niños y adolescentes en situación de vulnerabilidad.",
+        vigencia: "Julio–septiembre 2026",
+        costo: "Gratuito",
+        objetivo: "Promover la responsabilidad social entre empresarios, sector público y privado, y sociedad civil, para mejorar el acceso a útiles escolares de niñas, niños y adolescentes en zonas vulnerables del municipio.",
+        obtienes: "Kit de mochila y útiles escolares para nivel preescolar y primaria.",
+        requisitos: "Presentar solicitud por escrito dirigida a la Dirección General del DIF Municipal, con CURP del beneficiario o listado para solicitudes grupales. Solicitudes individuales deben incluir comprobante de inscripción o declaración bajo protesta de la institución educativa. Acudir personalmente a la entrega en fecha y horario definidos por el DIF Municipal.",
+        papeleria: "CURP, INE. Para grupos, listado de beneficiarios.",
+        como: "Presentar la solicitud en las oficinas del DIF Municipal. Las solicitudes pueden ser individuales o grupales a través de instituciones educativas. La entrega se realiza en fecha y horario definidos por el DIF Municipal.",
+        donde: "Av. A.F. Carbonel No. 4106, Col. San Felipe V, Chihuahua, Chih.",
+        contacto: "614 200 4800 ext. 2244–2248 · karina.muruato@mpiochih.gob.mx"
+      },
+      {
+        area: "coord",
+        badge: "badge-coord",
+        badgeTexto: "Coord. Estratégica",
+        titulo: "Más Vida",
+        poblacion: "Mujeres embarazadas o en postparto (hasta 6 meses cumplidos del bebé) en situación de vulnerabilidad.",
+        vigencia: "Hasta julio 2027",
+        costo: "Gratuito",
+        objetivo: "Brindar acompañamiento integral a mujeres embarazadas y en etapa de postparto, mediante capacitación, prevención de riesgos, atención multidisciplinaria y generación de redes de apoyo para vivir una maternidad informada y acompañada.",
+        obtienes: "Sesiones quincenales con ejercicios psicoprofilácticos, asesoría en lactancia materna e información para el cuidado de mamá y bebé. Incluye pañales, acompañamiento para fortalecer redes de apoyo y gestión de servicios según necesidades. Además artículos esenciales para el bebé, un bebeneto y acceso a rifa de artículos como carriolas.",
+        requisitos: "Ser mujer embarazada o en postparto (hasta 6 meses cumplidos del bebé) y residir en el Municipio de Chihuahua. Inscripción previa en el centro comunitario correspondiente.",
+        papeleria: "CURP, identificación oficial, comprobante de domicilio.",
+        como: "Llamar al teléfono de enlace, escribir a las redes sociales del DIF Municipal o acudir directamente a los centros comunitarios donde opera el programa.",
+        donde: "CEDEFAM Vallarta (10–12 h) · CEDEFAM Punta Oriente (10–12 h) · CEDEFAM Vistas Cerro Grande (16–18 h) · CEDEFAM Valle Dorado (17–19 h).",
+        contacto: "614 200 4800 ext. 2288 · miriam.herrera@chihuahua.gob.mx"
+      }
+    ];
+
+    function renderGrid(lista) {
+      const grid = document.getElementById("grid");
+      grid.innerHTML = lista.map(function(p) {
+        return `
+          <div class="tarjeta" data-area="${p.area}" onclick="abrirFicha(${programas.indexOf(p)})">
+            <span class="badge ${p.badge}">${p.badgeTexto}</span>
+            <h2>${p.titulo}</h2>
+            <p><strong>Población objetivo:</strong> ${p.poblacion}</p>
+            <p><strong>Vigencia:</strong> ${p.vigencia}</p>
+            <p><strong>Costo:</strong> ${p.costo}</p>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function filtrar(area, boton) {
+      const lista = area === "todos" ? programas : programas.filter(p => p.area === area);
+      renderGrid(lista);
+      document.querySelectorAll(".filtros button").forEach(b => b.classList.remove("activo"));
+      boton.classList.add("activo");
+    }
+
+    function abrirFicha(idx) {
+      const p = programas[idx];
+      document.getElementById("grid").style.display = "none";
+      document.getElementById("filtros").style.display = "none";
+      document.getElementById("detalle").classList.add("visible");
+      document.getElementById("detalle-contenido").innerHTML = `
+        <span class="badge ${p.badge}">${p.badgeTexto}</span>
+        <h2>${p.titulo}</h2>
+        <div class="campos">
+          <div class="campo"><div class="campo-label">Población objetivo</div><div class="campo-valor">${p.poblacion}</div></div>
+          <div class="campo"><div class="campo-label">Vigencia</div><div class="campo-valor">${p.vigencia}</div></div>
+          <div class="campo completo"><div class="campo-label">Objetivo del programa</div><div class="campo-valor">${p.objetivo}</div></div>
+          <div class="campo completo"><div class="campo-label">Qué obtienes</div><div class="campo-valor">${p.obtienes}</div></div>
+          <div class="campo completo"><div class="campo-label">Requisitos</div><div class="campo-valor">${p.requisitos}</div></div>
+          <div class="campo"><div class="campo-label">Papelería requerida</div><div class="campo-valor">${p.papeleria}</div></div>
+          <div class="campo"><div class="campo-label">Cómo solicitarlo</div><div class="campo-valor">${p.como}</div></div>
+          <div class="campo completo"><div class="campo-label">Dónde y cuándo</div><div class="campo-valor">${p.donde}</div></div>
+          <div class="campo completo"><div class="campo-label">Contacto</div><div class="campo-valor">${p.contacto}</div></div>
+        </div>
+      `;
+    }
+
+    function volver() {
+      document.getElementById("grid").style.display = "grid";
+      document.getElementById("filtros").style.display = "flex";
+      document.getElementById("detalle").classList.remove("visible");
+    }
+
+    renderGrid(programas);
+  </script>
+
+</body>
+</html>
